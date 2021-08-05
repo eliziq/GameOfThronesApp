@@ -1,66 +1,35 @@
-import React, {Component} from 'react';
-import './itemList.css';
-import Spinner from '../spinner';
-import PropTypes from 'prop-types';
-
+import React, { Component } from "react";
+import "./itemList.css";
+import { withData } from "../withData/withData";
+import GotService from "../../services/gotService";
 export default class ItemList extends Component {
+  renderItems(arr) {
+    console.log(arr);
+    return arr.map((item) => {
+      const { id } = item;
 
-    state = {
-        itemList: null
-    }
+      const label = this.props.renderItem(item);
 
-    static defaultProps = {
-        onItemSelected: () => {}
-    }
-    
-    static propTypes = {
-        onItemSelected: PropTypes.func
-    }
+      return (
+        <li
+          key={id}
+          className="list-group-item"
+          onClick={() => this.props.onItemSelected(id)}
+        >
+          {label}
+        </li>
+      );
+    });
+  }
 
-    componentDidMount() {
-        const {getData} = this.props;
-        
-        getData()
-            .then( (itemList) => {
-                this.setState({
-                    itemList
-                })
-            })
-    }
+  render() {
+    const { data } = this.props;
 
-    renderItems(arr) {
-        console.log(arr);
-        return arr.map((item) => {
-            const {id} = item;
+    const items = this.renderItems(data);
 
-            const label = this.props.renderItem(item);
-
-            return (
-                <li 
-                    key={id}
-                    className="list-group-item"
-                    onClick={ () => this.props.onItemSelected(id)}>
-                    {label}
-                </li>
-            )
-        })
-    }
-
-    render() {
-        const {itemList} = this.state;
-
-        if (!itemList) {
-            return <Spinner/>
-        }
-
-        const items = this.renderItems(itemList);
-
-
-        return (
-            <ul className="item-list list-group">
-                {items}
-            </ul>
-        );
-    }
+    return <ul className="item-list list-group">{items}</ul>;
+  }
 }
 
+// const { getAllCharacters } = new GotService();
+// export default withData(ItemList, getAllCharacters);

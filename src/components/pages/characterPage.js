@@ -1,59 +1,58 @@
-import React, {Component} from 'react';
-import ItemList from '../itemList';
-import ItemDetails, {Field} from '../itemDetails';
-import ErrorMessage from '../errorMessage';
-import gotService from '../../services/gotService';
-import RowBlock from '../rowBlock';
+import React, { Component } from "react";
+import ItemList from "../itemList";
+import ItemDetails, { Field } from "../itemDetails";
+import ErrorMessage from "../errorMessage";
+import gotService from "../../services/gotService";
+import RowBlock from "../rowBlock";
+import { withData } from "../withData/withData";
 
+class CharacterPage extends Component {
+  gotService = new gotService();
 
-export default class CharacterPage extends Component {
+  state = {
+    selectedChar: null,
+    error: false,
+  };
 
-    gotService = new gotService();
+  onItemSelected = (id) => {
+    this.setState({
+      selectedChar: id,
+    });
+  };
 
-    state = {
-        selectedChar: null,
-        error: false
+  componentDidCatch() {
+    this.setState({
+      error: true,
+    });
+  }
+
+  render() {
+    if (this.state.error) {
+      return <ErrorMessage />;
     }
-    
-    onItemSelected = (id) => {
-        this.setState({
-            selectedChar: id
-        })
-    }
 
-    componentDidCatch() {
-        this.setState({
-            error: true
-        })
-    }
-    
+    const itemList = (
+      <ItemList
+        onItemSelected={this.onItemSelected}
+        data={this.props.data}
+        renderItem={({ name, gender }) => `${name} (${gender})`}
+      />
+    );
 
-    render() {
+    const itemDetails = (
+      <ItemDetails
+        itemId={this.state.selectedChar}
+        getData={this.gotService.getCharacter}
+      >
+        <Field field="gender" label="Gender" />
+        <Field field="born" label="Born" />
+        <Field field="died" label="Died" />
+        <Field field="culture" label="Culture" />
+      </ItemDetails>
+    );
 
-        if(this.state.error) {
-            return <ErrorMessage/>
-        }
-
-        const itemList = (
-            <ItemList
-                onItemSelected={this.onItemSelected}
-                getData={this.gotService.getAllCharacters}
-                renderItem={({name, gender}) => `${name} (${gender})`}/>
-        )
-
-        const itemDetails = (
-            <ItemDetails 
-                itemId={this.state.selectedChar}
-                getData={this.gotService.getCharacter}>
-                    <Field field='gender' label='Gender'/>
-                    <Field field='born' label='Born'/>
-                    <Field field='died' label='Died'/>
-                    <Field field='culture' label='Culture'/>
-            </ItemDetails>
-        )
-
-        return(
-            <RowBlock left={itemList} right={itemDetails}/>
-        )
-    }
+    return <RowBlock left={itemList} right={itemDetails} />;
+  }
 }
+const { getAllCharacters } = new gotService();
+export default withData(CharacterPage, getAllCharacters);

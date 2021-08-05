@@ -1,40 +1,40 @@
-import React, {Component} from 'react';
-import ItemList from '../itemList';
-import ErrorMessage from '../errorMessage';
-import gotService from '../../services/gotService';
-import{withRouter} from 'react-router-dom'
+import React, { Component } from "react";
+import ItemList from "../itemList";
+import ErrorMessage from "../errorMessage";
+import gotService from "../../services/gotService";
+import { withRouter } from "react-router-dom";
+import { withData } from "../withData/withData";
 
 class BookPage extends Component {
+  // gotService = new gotService();
 
-    gotService = new gotService();
+  state = {
+    error: false,
+  };
 
-    state = {
-        error: false
+  componentDidCatch() {
+    this.setState({
+      error: true,
+    });
+  }
+
+  render() {
+    if (this.state.error) {
+      return <ErrorMessage />;
     }
 
+    console.log(this.props);
 
-    componentDidCatch() {
-        this.setState({
-            error: true
-        })
-    }
-    
-
-    render() {
-
-        if(this.state.error) {
-            return <ErrorMessage/>
-        }
-        
-        return(
-            <ItemList
-                onItemSelected={(itemId)=> {
-                    this.props.history.push(itemId)
-                }}
-                getData={this.gotService.getAllBooks}
-                renderItem={({name}) => name}/>
-        )
-    }
+    return (
+      <ItemList
+        onItemSelected={(itemId) => {
+          this.props.history.push(itemId);
+        }}
+        data={this.props.data}
+        renderItem={({ name }) => name}
+      />
+    );
+  }
 }
-
-export default withRouter(BookPage);
+const { getAllBooks } = new gotService();
+export default withRouter(withData(BookPage, getAllBooks));
